@@ -26,10 +26,10 @@ defmodule PollingAppWeb.PollLive.Show do
 
   @impl true
   def handle_info(%{new_vote: vote}, socket) do
+    # Filter for the case that the user voting recieves the notification for his one vote
+    poll_votes =
+      Enum.filter(socket.assigns.votes, fn x -> x.user_id != vote.user_id end) ++ [vote]
 
-    #Filter for the case that the user voting recieves the notification for his one vote
-    poll_votes = Enum.filter(socket.assigns.votes, fn x -> x.user_id != vote.user_id end) ++ [vote]  
-    
     current_user_voted? =
       socket.assigns.current_user.id in Enum.map(poll_votes, fn x -> x.user_id end)
 
@@ -61,6 +61,7 @@ defmodule PollingAppWeb.PollLive.Show do
           socket
 
         {:error, _changeset} ->
+          # We assume no malicious user intentions, and thus the problem is narrowed down to the only possible problem.
           put_flash(socket, :info, "You have already voted")
       end
 
@@ -70,11 +71,10 @@ defmodule PollingAppWeb.PollLive.Show do
      |> assign(:current_user_voted?, current_user_voted?)}
   end
 
-
   # Transform the votes list into a map having options.content as keys and their freiquencies as values
   # from presentation purpuses
   defp transform_votes(poll_votes) do
-    poll_votes 
+    poll_votes
     |> Enum.group_by(fn x -> x.polling_option.content end, fn x -> x.user_id end)
     |> Map.to_list()
     |> Enum.map(fn {x, y} -> {x, length(y)} end)

@@ -1,7 +1,6 @@
 defmodule PollingAppWeb.UserSessionControllerTest do
   use PollingAppWeb.ConnCase, async: false
 
-
   import PollingApp.AccountsFixtures
 
   setup do

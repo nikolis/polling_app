@@ -3,38 +3,58 @@ defmodule PollingApp.PollingTest do
 
   alias PollingApp.Polling
 
-  describe "votes" do 
+  describe "votes" do
     alias PollingApp.Polling.Poll
     alias PollingApp.Polling.Vote
 
-    test "Vote, User Should be able to vote once at any given poll "  do
+    test "Vote, User Should be able to vote once at any given poll " do
       user = PollingApp.AccountsFixtures.user_fixture()
+
       valid_attrs = %{
         title: "some title",
         user_id: user.id,
         polling_options: [%{content: "nothing"}, %{content: "nothing2"}]
       }
+
       assert {:ok, %Poll{} = poll} = Polling.create_poll(valid_attrs)
 
       option = Enum.at(poll.polling_options, 0)
-      assert {:ok, %Vote{} = _vote} = Polling.create_vote(%{user_id: user.id, poll_id: poll.id, polling_option_id: option.id})
+
+      assert {:ok, %Vote{} = _vote} =
+               Polling.create_vote(%{
+                 user_id: user.id,
+                 poll_id: poll.id,
+                 polling_option_id: option.id
+               })
     end
 
-    test "Vote, User Should not be able to vote twice at any given poll "  do
+    test "Vote, User Should not be able to vote twice at any given poll " do
       user = PollingApp.AccountsFixtures.user_fixture()
+
       valid_attrs = %{
         title: "some title",
         user_id: user.id,
         polling_options: [%{content: "nothing"}, %{content: "nothing2"}]
       }
+
       assert {:ok, %Poll{} = poll} = Polling.create_poll(valid_attrs)
 
       option = Enum.at(poll.polling_options, 0)
 
-      assert {:ok, %Vote{} = _vote} = Polling.create_vote(%{user_id: user.id, poll_id: poll.id, polling_option_id: option.id})
-      assert {:error, _} = Polling.create_vote(%{user_id: user.id, poll_id: poll.id, polling_option_id: option.id})
-    end
+      assert {:ok, %Vote{} = _vote} =
+               Polling.create_vote(%{
+                 user_id: user.id,
+                 poll_id: poll.id,
+                 polling_option_id: option.id
+               })
 
+      assert {:error, _} =
+               Polling.create_vote(%{
+                 user_id: user.id,
+                 poll_id: poll.id,
+                 polling_option_id: option.id
+               })
+    end
   end
 
   describe "polls" do
