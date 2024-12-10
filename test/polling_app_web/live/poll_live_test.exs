@@ -1,7 +1,6 @@
 defmodule PollingAppWeb.PollLiveTest do
   use PollingAppWeb.ConnCase, async: false
 
-
   import Phoenix.LiveViewTest
   import PollingApp.PollingFixtures
 
@@ -108,12 +107,13 @@ defmodule PollingAppWeb.PollLiveTest do
 
     test "Test Show Poll -> Vote -> View Result ", %{conn: conn, poll: poll} do
       {:ok, show_live, html} = live(conn, ~p"/polls/#{poll}")
-      option  = Enum.at(poll.polling_options , 0)
+      option = Enum.at(poll.polling_options, 0)
       elem_id = "#option-" <> Integer.to_string(option.id)
 
-      result = show_live
-             |> element(elem_id)
-             |> render_click()
+      result =
+        show_live
+        |> element(elem_id)
+        |> render_click()
 
       # assert_push_event(show_live, "poll", %{new_vote: _vote})
       assert html =~ ""

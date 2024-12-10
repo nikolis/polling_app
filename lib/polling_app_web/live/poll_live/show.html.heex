@@ -19,8 +19,7 @@
   <h1 class="m-auto text-center font-semibold text-xl">Results</h1>
   <%= for {option, total} <- transform_votes(@votes) do %>
     <div class="flex gap-2">
-      <h1 class="font-semibold"><%= option %>: <%= total %> </h1>
-
+      <h1 class="font-semibold"><%= option %>: <%= total %></h1>
     </div>
   <% end %>
 </div>

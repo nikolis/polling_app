@@ -35,7 +35,6 @@ defmodule PollingApp.Polling do
     {:ok, vote}
   end
 
-
   @doc """
   Creates a vote.
 
@@ -49,18 +48,19 @@ defmodule PollingApp.Polling do
 
   """
   def create_vote(attrs \\ %{}) do
-     result =  %Vote{}
+    result =
+      %Vote{}
       |> Vote.changeset(attrs)
       |> Repo.insert()
-      
-    case result do 
-      {:ok, vote } ->
-        {:ok, 
-          vote
-          |> Repo.preload([:polling_option])}
-          |> broadcast_change()
 
-        _ ->
+    case result do
+      {:ok, vote} ->
+        {:ok,
+         vote
+         |> Repo.preload([:polling_option])}
+        |> broadcast_change()
+
+      _ ->
         result
     end
   end

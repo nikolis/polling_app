@@ -110,16 +110,6 @@ defmodule PollingAppWeb.PollLive.FormComponent do
      |> init(poll)}
   end
 
-  defp add_polling_option_to_changeset(changeset) do
-    existing = Ecto.Changeset.get_assoc(changeset, :polling_options)
-
-    Ecto.Changeset.put_assoc(
-      changeset,
-      :polling_options,
-      existing ++ [%{temp_id: get_temp_id()}]
-    )
-  end
-
   defp init(socket, base, attrs \\ %{}) do
     changeset =
       Polling.change_poll(base, attrs)
@@ -134,18 +124,16 @@ defmodule PollingAppWeb.PollLive.FormComponent do
 
   @impl true
   def handle_event("add-option", _params, socket) do
-    changeset = add_polling_option_to_changeset(socket.assigns.changeset)
-    socket = assign(socket, :changeset, changeset)
-    {:noreply, socket}
+    changeset = add_option_to_changeset(socket.assigns.changeset)
+
+    {:noreply,
+     socket
+     |> assign(:changeset, changeset)}
   end
 
   @impl true
   def handle_event("remove-option", %{"temp_id" => remove_id}, socket) do
-    {_progress, options} = remove_from_change(socket, remove_id)
-
-    changeset =
-      socket.assigns.changeset
-      |> Ecto.Changeset.put_assoc(:polling_options, options)
+    changeset = remove_option_from_changeset(socket.assigns.changeset, remove_id)
 
     {:noreply, assign(socket, changeset: changeset)}
   end
@@ -194,27 +182,31 @@ defmodule PollingAppWeb.PollLive.FormComponent do
   end
 
   ########################################################################################## Helper Function  ##########################################
-  defp remove_from_change(socket, remove_id) do
-    case Map.get(socket.assigns.changeset.changes, :polling_options, nil) do
+
+  defp add_option_to_changeset(changeset) do
+    existing = Ecto.Changeset.get_assoc(changeset, :polling_options)
+
+    Ecto.Changeset.put_assoc(
+      changeset,
+      :polling_options,
+      existing ++ [%{temp_id: get_temp_id()}]
+    )
+  end
+
+  defp remove_option_from_changeset(changeset, remove_id) do
+    case Map.get(changeset.changes, :polling_options, nil) do
       nil ->
-        {:repeat, []}
+        changeset
 
       option_changes ->
-        original_length = length(option_changes)
-
-        result_changes =
+        options =
           option_changes
           |> Enum.reject(fn %{changes: option} = _rest ->
             Map.get(option, :temp_id, nil) == remove_id
           end)
 
-        case length(result_changes) == original_length do
-          true ->
-            {:repeat, result_changes}
-
-          false ->
-            {:ok, result_changes}
-        end
+        changeset
+        |> Ecto.Changeset.put_assoc(:polling_options, options)
     end
   end
 
