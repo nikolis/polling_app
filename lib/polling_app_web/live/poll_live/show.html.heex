@@ -1,6 +1,5 @@
 <.header>
   <h1 class="text-2xl uppercase font-grey text-center font-semibold"><%= @poll.title %></h1>
-  <h1>User has voted: <%= @current_user_voted? %></h1>
 </.header>
 
 <div :if={!@current_user_voted?} class="grid grid-rows  gap-4 items-stretch place-items-stretch">
@@ -12,7 +11,7 @@
       phx-value-poll-id={@poll.id}
       phx-value-option-id={option.id}
     >
-      <div class="text-center m-auto w-fit h-fit p-4 	"><%= inspect(option.content) %></div>
+      <div class="text-center m-auto w-fit h-fit p-4 	"><%= option.content %></div>
     </div>
   <% end %>
 </div>
